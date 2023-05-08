@@ -10,10 +10,16 @@ PROFILE = default
 PROJECT_NAME = culvert-vision
 PYTHON_INTERPRETER = python3
 
-ifeq (,$(shell which conda))
+ifeq (,$(shell conda --version))
 HAS_CONDA=False
 else
 HAS_CONDA=True
+endif
+
+ifeq (,$(shell mamba --version))
+HAS_MAMBA=False
+else
+HAS_MAMBA=True
 endif
 
 #################################################################################
@@ -54,22 +60,18 @@ else
 	aws s3 sync s3://$(BUCKET)/data/ data/ --profile $(PROFILE)
 endif
 
-## Set up python interpreter environment
+## Set up mamba environment
 create_environment:
+ifeq (True,$(HAS_MAMBA))
+	@echo "Detected mamba, creating mamba environment."
+	mamba env create -f environment.yml
+else
 ifeq (True,$(HAS_CONDA))
-		@echo ">>> Detected conda, creating conda environment."
-ifeq (3,$(findstring 3,$(PYTHON_INTERPRETER)))
-	conda create --name $(PROJECT_NAME) python=3
+	@echo "mamba not found, falling back to conda."
+	conda env create -f environment.yml
 else
-	conda create --name $(PROJECT_NAME) python=2.7
+	$(error Neither mamba or conda was found. Install mamba or conda before continuing.)
 endif
-		@echo ">>> New conda env created. Activate with:\nsource activate $(PROJECT_NAME)"
-else
-	$(PYTHON_INTERPRETER) -m pip install -q virtualenv virtualenvwrapper
-	@echo ">>> Installing virtualenvwrapper if not already installed.\nMake sure the following lines are in shell startup file\n\
-	export WORKON_HOME=$$HOME/.virtualenvs\nexport PROJECT_HOME=$$HOME/Devel\nsource /usr/local/bin/virtualenvwrapper.sh\n"
-	@bash -c "source `which virtualenvwrapper.sh`;mkvirtualenv $(PROJECT_NAME) --python=$(PYTHON_INTERPRETER)"
-	@echo ">>> New virtualenv created. Activate with:\nworkon $(PROJECT_NAME)"
 endif
 
 ## Test python environment is setup correctly
