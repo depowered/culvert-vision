@@ -1,0 +1,16 @@
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.pylint."messages control"]
+ignore = ["setup.py", "__init__.py"]
+disable = "all"
+enable = [
+  "empty-docstring",
+  "missing-class-docstring",
+  "missing-function-docstring",
+  "missing-module-docstring"
+]
+
+[tool.isort]
+profile = "black"

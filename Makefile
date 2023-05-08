@@ -42,7 +42,15 @@ clean:
 
 ## Lint using flake8
 lint:
-	flake8 src
+	flake8 --config .flake8 src
+
+## Format using black
+format:
+	isort src
+	black src
+
+## Sort imports, format, and lint
+check_code: format lint
 
 ## Upload Data to S3
 sync_data_to_s3:
@@ -69,6 +77,20 @@ else
 ifeq (True,$(HAS_CONDA))
 	@echo "mamba not found, falling back to conda."
 	conda env create -f environment.yml
+else
+	$(error Neither mamba or conda was found. Install mamba or conda before continuing.)
+endif
+endif
+
+## Update mamba environment
+update_environment:
+ifeq (True,$(HAS_MAMBA))
+	@echo "Detected mamba, updating mamba environment."
+	mamba env update -n $(PROJECT_NAME) -f environment.yml --prune
+else
+ifeq (True,$(HAS_CONDA))
+	@echo "mamba not found, falling back to conda."
+	conda env update -n $(PROJECT_NAME) -f environment.yml --prune
 else
 	$(error Neither mamba or conda was found. Install mamba or conda before continuing.)
 endif
