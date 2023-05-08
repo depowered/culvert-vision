@@ -5,8 +5,8 @@
 #################################################################################
 
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-BUCKET = [OPTIONAL] your-bucket-for-syncing-data (do not include 's3://')
-PROFILE = default
+BUCKET = culvert-vision
+RCLONE_PROVIDER = CloudflareR2
 PROJECT_NAME = culvert-vision
 PYTHON_INTERPRETER = python3
 
@@ -40,32 +40,32 @@ clean:
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
 
-## Lint using flake8
+## Lint src code with flake8
 lint:
 	flake8 --config .flake8 src
 
-## Format using black
+## Format src code with isort & black
 format:
 	isort src
 	black src
 
-## Sort imports, format, and lint
-check_code: format lint
+## Format and lint src code
+check: format lint
 
-## Upload Data to S3
+## Upload data to S3. Pass dry-run=False to preform permanent sync to remote.
 sync_data_to_s3:
-ifeq (default,$(PROFILE))
-	aws s3 sync data/ s3://$(BUCKET)/data/
+ifeq (False,$(dry-run))
+	rclone sync ./data $(RCLONE_PROVIDER):/$(BUCKET)
 else
-	aws s3 sync data/ s3://$(BUCKET)/data/ --profile $(PROFILE)
+	rclone sync --dry-run ./data $(RCLONE_PROVIDER):/$(BUCKET)
 endif
 
-## Download Data from S3
+## Download data from S3. Pass dry-run=False to preform permanent sync from remote.
 sync_data_from_s3:
-ifeq (default,$(PROFILE))
-	aws s3 sync s3://$(BUCKET)/data/ data/
+ifeq (False,$(dry-run))
+	rclone sync $(RCLONE_PROVIDER):/$(BUCKET) ./data
 else
-	aws s3 sync s3://$(BUCKET)/data/ data/ --profile $(PROFILE)
+	rclone sync --dry-run $(RCLONE_PROVIDER):/$(BUCKET) ./data 
 endif
 
 ## Set up mamba environment
