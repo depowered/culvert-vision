@@ -6,7 +6,7 @@
 
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 BUCKET = culvert-vision
-RCLONE_PROVIDER = CloudflareR2
+RCLONE_REMOTE_CONFIG_NAME = CulvertVision
 PROJECT_NAME = culvert-vision
 PYTHON_INTERPRETER = python3
 
@@ -55,17 +55,17 @@ check: format lint
 ## Upload data to S3. Pass dry-run=False to preform permanent sync to remote.
 sync_data_to_s3:
 ifeq (False,$(dry-run))
-	rclone sync ./data $(RCLONE_PROVIDER):/$(BUCKET)
+	rclone sync ./data $(RCLONE_REMOTE_CONFIG_NAME):/$(BUCKET)
 else
-	rclone sync --dry-run ./data $(RCLONE_PROVIDER):/$(BUCKET)
+	rclone sync --dry-run ./data $(RCLONE_REMOTE_CONFIG_NAME):/$(BUCKET)
 endif
 
 ## Download data from S3. Pass dry-run=False to preform permanent sync from remote.
 sync_data_from_s3:
 ifeq (False,$(dry-run))
-	rclone sync $(RCLONE_PROVIDER):/$(BUCKET) ./data
+	rclone sync $(RCLONE_REMOTE_CONFIG_NAME):/$(BUCKET) ./data
 else
-	rclone sync --dry-run $(RCLONE_PROVIDER):/$(BUCKET) ./data 
+	rclone sync --dry-run $(RCLONE_REMOTE_CONFIG_NAME):/$(BUCKET) ./data 
 endif
 
 ## Set up mamba environment
