@@ -15,6 +15,7 @@ dependencies:
   - rclone
   - geopandas
   - notebook
+  - pydantic
   - pip
   - pip:
       - black[jupyter]

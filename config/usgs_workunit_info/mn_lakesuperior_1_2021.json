@@ -1,0 +1,7 @@
+{
+    "workunit": "MN_LakeSuperior_1_2021",
+    "workunit_id": 218907,
+    "tile_index_zip": "USGS_MN_LakeSuperior_1_2021_TileIndex.zip",
+    "tile_name_field": "Name",
+    "ept_json_href": "https://s3-us-west-2.amazonaws.com/usgs-lidar-public/MN_LakeSuperior_1_2021/ept.json"
+}
