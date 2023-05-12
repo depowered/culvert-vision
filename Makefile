@@ -41,13 +41,22 @@ clean:
 	find . -type d -name "__pycache__" -delete
 
 ## Lint src code with flake8
-lint:
+lint_src:
 	flake8 --config .flake8 src
 
 ## Format src code with isort & black
-format:
+format_src:
 	isort src
 	black src
+
+## Lint src code with flake8
+lint_notebooks:
+	flake8 --config .flake8 notebooks
+
+## Format src code with isort & black
+format_notebooks:
+	isort notebooks
+	black notebooks
 
 ## Format and lint src code
 check: format lint
