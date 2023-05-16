@@ -16,6 +16,7 @@ dependencies:
   - geopandas
   - notebook
   - pydantic
+  - python-pdal
   - pip
   - pip:
       - black[jupyter]
