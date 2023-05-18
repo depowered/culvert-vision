@@ -1,7 +1,0 @@
-{
-    "workunit": "MN_LakeCounty_2018_C20",
-    "workunit_id": 187243,
-    "tile_index_zip": "MN_LakeCounty_2018_C20_TileIndex.zip",
-    "tile_name_field": "Name",
-    "ept_json_href": "https://s3-us-west-2.amazonaws.com/usgs-lidar-public/MN_LakeCounty_2018/ept.json"
-}
