@@ -10,7 +10,13 @@ from tile_index.pipeline import tile_index_pipeline
 
 
 @click.command()
-@click.argument("config_file", type=click.Path(exists=True))
+@click.option(
+    "-c",
+    "--config-file",
+    required=True,
+    type=click.Path(exists=True),
+    help="Tile index pipeline config definition as .toml",
+)
 def main(config_file: Path) -> None:
     """Runs a vector processing pipeline that cleans and merges USGS provided
     Tile Index shapefiles into a compressed geoparquet. Tiles are used to define

@@ -98,7 +98,7 @@ endif
 
 ## Make tile index geoparquet from zipped shapefiles
 tile_index:
-	$(PYTHON_INTERPRETER) src/data/make_tile_index.py config/tile_index_pipeline.toml
+	$(PYTHON_INTERPRETER) src/data/make_tile_index.py --config-file=config/tile_index_pipeline.toml
 
 ## Test python environment is setup correctly
 test_environment:
