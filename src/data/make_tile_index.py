@@ -4,7 +4,6 @@ import logging
 from pathlib import Path
 
 import click
-from dotenv import find_dotenv, load_dotenv
 from tile_index.config import TileIndexPipelineConfig
 from tile_index.pipeline import tile_index_pipeline
 
@@ -14,10 +13,28 @@ from tile_index.pipeline import tile_index_pipeline
     "-c",
     "--config-file",
     required=True,
-    type=click.Path(exists=True),
+    type=click.Path(
+        exists=True, resolve_path=True, dir_okay=False, file_okay=True, path_type=Path
+    ),
     help="Tile index pipeline config definition as .toml",
 )
-def main(config_file: Path) -> None:
+@click.option(
+    "-i",
+    "--input-dir",
+    required=True,
+    type=click.Path(
+        exists=True, resolve_path=True, dir_okay=True, file_okay=False, path_type=Path
+    ),
+    help="Directory containing the zipped shapefiles to process",
+)
+@click.option(
+    "-o",
+    "--output-file",
+    required=True,
+    type=click.Path(resolve_path=True, dir_okay=False, file_okay=True, path_type=Path),
+    help="Output file. Must end with .parquet",
+)
+def main(config_file: Path, input_dir: Path, output_file: Path) -> None:
     """Runs a vector processing pipeline that cleans and merges USGS provided
     Tile Index shapefiles into a compressed geoparquet. Tiles are used to define
     the spatial extent of individual rasters generated from point cloud datasets.
@@ -26,16 +43,13 @@ def main(config_file: Path) -> None:
     logger.info("Reading configuration settings from %s", config_file)
     config = TileIndexPipelineConfig.parse_toml(config_file)
 
-    logger.info("Running pipeline on %s shapefiles", len(config.tile_index_configs))
-    tile_index_pipeline(config)
+    logger.info("Running pipeline on %s shapefiles", len(config.tile_index_sources))
+    tile_index_pipeline(config, input_dir, output_file)
 
-    logger.info("Output tile index written to %s", config.output_filepath)
+    logger.info("Output tile index written to %s", output_file)
 
 
 if __name__ == "__main__":
-    # Load environment variables to reflect any changes to .env before continuing
-    load_dotenv(find_dotenv())
-
     log_fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     logging.basicConfig(level=logging.INFO, format=log_fmt)
 

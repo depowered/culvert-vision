@@ -5,11 +5,13 @@ import geopandas
 import pandas as pd
 from geopandas import GeoDataFrame
 
-from .config import TileIndexConfig, TileIndexPipelineConfig
+from .config import TileIndexPipelineConfig, TileIndexSource
 
 
-def _extract_tile_index(source: Path, tile_name_field: str) -> GeoDataFrame:
-    return geopandas.read_file(filename=source, include_fields=[tile_name_field])
+def _extract_tile_index(zipped_shapefile: Path, tile_name_field: str) -> GeoDataFrame:
+    return geopandas.read_file(
+        filename=zipped_shapefile, include_fields=[tile_name_field]
+    )
 
 
 def _transform_tile_index(
@@ -22,19 +24,21 @@ def _transform_tile_index(
 
 
 def _extract_transform_tile_index(
-    tile_index_source_dir: Path, config: TileIndexConfig
+    source: TileIndexSource, input_dir: Path
 ) -> GeoDataFrame:
-    source = tile_index_source_dir / config.zipped_shapefile
-    extracted = _extract_tile_index(source, config.tile_name_field)
+    zipped_shapefile = input_dir / source.zipped_shapefile
+    extracted = _extract_tile_index(zipped_shapefile, source.tile_name_field)
     return _transform_tile_index(
-        extracted, config.tile_name_field, config.workunit, config.ept_json_url
+        extracted, source.tile_name_field, source.workunit, source.ept_json_url
     )
 
 
-def tile_index_pipeline(pipeline_config: TileIndexPipelineConfig) -> None:
+def tile_index_pipeline(
+    config: TileIndexPipelineConfig, input_dir: Path, output_file: Path
+) -> None:
     gdfs = (
-        _extract_transform_tile_index(pipeline_config.tile_index_source_dir, config)
-        for config in pipeline_config.tile_index_configs
+        _extract_transform_tile_index(source, input_dir)
+        for source in config.tile_index_sources
     )
     contatinated: GeoDataFrame = pd.concat(gdfs)
-    contatinated.to_parquet(pipeline_config.output_filepath)
+    contatinated.to_parquet(output_file)
