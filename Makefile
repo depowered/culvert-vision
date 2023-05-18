@@ -40,25 +40,16 @@ clean:
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
 
-## Lint src code with flake8
-lint_src:
-	flake8 --config .flake8 src
+## Lint src code and notebooks with flake8
+lint:
+	flake8 --config .flake8 src notebooks
 
-## Format src code with isort & black
-format_src:
-	isort src
-	black src
+## Format src code and notebooks with isort & black
+format:
+	isort src notebooks
+	black src notebooks
 
-## Lint src code with flake8
-lint_notebooks:
-	flake8 --config .flake8 notebooks
-
-## Format src code with isort & black
-format_notebooks:
-	isort notebooks
-	black notebooks
-
-## Format and lint src code
+## Format and lint src code and notebooks
 check: format lint
 
 ## Upload data to S3. Pass dry-run=False to preform permanent sync to remote.
