@@ -14,9 +14,11 @@ dependencies:
   - isort
   - rclone
   - geopandas
+  - pyarrow
   - notebook
   - pydantic
   - python-pdal
   - pip
   - pip:
       - black[jupyter]
+      - -e .

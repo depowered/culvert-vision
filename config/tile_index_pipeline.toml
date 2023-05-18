@@ -1,0 +1,76 @@
+# relative path to directory containing zipped shapefiles from $CULVERT_VISION_DATA_DIR
+tile_index_source_dir = "external/usgs/tile_index/"
+# relative filepath to write the output tile index parquet from $CULVERT_VISION_DATA_DIR
+output_filepath = "interim/tile_index.parquet"
+
+[[tile_index_configs]]
+workunit = "MN_BeckerCo_1_2021"
+zipped_shapefile = "USGS_MN_BeckerCo_1_2021_TileIndex.zip"
+tile_name_field = "MN34INDEX"
+# ept_json_url # Not in STAC catalog yet
+
+[[tile_index_configs]]
+workunit = "MN_LakeCounty_2018"
+zipped_shapefile = "MN_LakeCounty_2018_C20_TileIndex.zip"
+tile_name_field = "Name"
+ept_json_url = "https://s3-us-west-2.amazonaws.com/usgs-lidar-public/MN_LakeCounty_2018/ept.json"
+
+[[tile_index_configs]]
+workunit = "MN_LakeSuperior_1_2021"
+zipped_shapefile = "USGS_MN_LakeSuperior_1_2021_TileIndex.zip"
+tile_name_field = "Name"
+ept_json_url = "https://s3-us-west-2.amazonaws.com/usgs-lidar-public/MN_LakeSuperior_1_2021/ept.json"
+
+[[tile_index_configs]]
+workunit = "MN_LakeSuperior_2_2021"
+zipped_shapefile = "USGS_MN_LakeSuperior_2_2021_TileIndex.zip"
+tile_name_field = "Name"
+ept_json_url = "https://s3-us-west-2.amazonaws.com/usgs-lidar-public/MN_LakeSuperior_2_2021/ept.json"
+
+[[tile_index_configs]]
+workunit = "MN_MORiverBigSioux_1_B21"
+zipped_shapefile = "USGS_MN_MORiverBigSioux_1_B21_TileIndex.zip"
+tile_name_field = "MN34INDEX"
+ept_json_url = "https://s3-us-west-2.amazonaws.com/usgs-lidar-public/MN_MORiverBigSioux_1_B21/ept.json"
+
+[[tile_index_configs]]
+workunit = "MN_RainyLake_1_2020"
+zipped_shapefile = "USGS_MN_RainyLake_1_2020_TileIndex.zip"
+tile_name_field = "Name"
+ept_json_url = "https://s3-us-west-2.amazonaws.com/usgs-lidar-public/MN_RainyLake_1_2020/ept.json"
+
+[[tile_index_configs]]
+workunit = "MN_RainyLake_2_2020"
+zipped_shapefile = "USGS_MN_RainyLake_2_2020_TileIndex.zip"
+tile_name_field = "Name"
+ept_json_url = "https://s3-us-west-2.amazonaws.com/usgs-lidar-public/MN_RainyLake_2_2020/ept.json"
+
+[[tile_index_configs]]
+workunit = "MN_SEDriftless_1_2021"
+zipped_shapefile = "USGS_MN_SEDriftless_1_2021_TileIndex.zip"
+tile_name_field = "GridName"
+ept_json_url = "https://s3-us-west-2.amazonaws.com/usgs-lidar-public/MN_SEDriftless_1_2021/ept.json"
+
+[[tile_index_configs]]
+workunit = "MN_SEDriftless_2_2021"
+zipped_shapefile = "USGS_MN_SEDriftless_2_2021_TileIndex.zip"
+tile_name_field = "MN45INDEX"
+ept_json_url = "https://s3-us-west-2.amazonaws.com/usgs-lidar-public/MN_SEDriftless_2_2021/ept.json"
+
+[[tile_index_configs]]
+workunit = "MN_SEDriftless_3_2021"
+zipped_shapefile = "USGS_MN_SEDriftless_3_2021_TileIndex.zip"
+tile_name_field = "MN45INDEX"
+ept_json_url = "https://s3-us-west-2.amazonaws.com/usgs-lidar-public/MN_SEDriftless_3_2021/ept.json"
+
+[[tile_index_configs]]
+workunit = "MN_SEDriftless_5_2021"
+zipped_shapefile = "USGS_MN_SEDriftless_5_2021_TileIndex.zip"
+tile_name_field = "MN45INDEX"
+ept_json_url = "https://s3-us-west-2.amazonaws.com/usgs-lidar-public/MN_SEDriftless_5_2021/ept.json"
+
+[[tile_index_configs]]
+workunit = "MN_UpperMissRiver_3_B22"
+zipped_shapefile = "USGS_MN_UpperMissRiver_3_B22_TileIndex.zip"
+tile_name_field = "TNAME"
+# ept_json_url # Not in STAC catalog yet

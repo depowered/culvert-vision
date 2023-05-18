@@ -1,23 +1,36 @@
-from dataclasses import dataclass
+from __future__ import annotations
 
-from .tile_index.tile import Tile
+import logging
+from pathlib import Path
+
+import click
+from dotenv import find_dotenv, load_dotenv
+from tile_index.config import TileIndexPipelineConfig
+from tile_index.pipeline import tile_index_pipeline
 
 
-@dataclass
-class TileIndexPipelineConfig:
-    ...
-
-
-def main(cfg: TileIndexPipelineConfig) -> None:
+@click.command()
+@click.argument("config_file", type=click.Path(exists=True))
+def main(config_file: Path) -> None:
     """Runs a vector processing pipeline that cleans and merges USGS provided
     Tile Index shapefiles into a compressed geoparquet. Tiles are used to define
     the spatial extent of individual rasters generated from point cloud datasets.
     """
-    # Load tile index configuration parameters
-    # Load and clean each shapefile
-    # Concatinate all into a single GeoDataFrame
-    # Write to the intirim data directory as a compressed geoparquet
+    logger = logging.getLogger(__name__)
+    logger.info("Reading configuration settings from %s", config_file)
+    config = TileIndexPipelineConfig.parse_toml(config_file)
+
+    logger.info("Running pipeline on %s shapefiles", len(config.tile_index_configs))
+    tile_index_pipeline(config)
+
+    logger.info("Output tile index written to %s", config.output_filepath)
 
 
 if __name__ == "__main__":
+    # Load environment variables to reflect any changes to .env before continuing
+    load_dotenv(find_dotenv())
+
+    log_fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    logging.basicConfig(level=logging.INFO, format=log_fmt)
+
     main()
