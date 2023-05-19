@@ -1,4 +1,4 @@
-.PHONY: clean data lint requirements sync_data_to_s3 sync_data_from_s3
+.PHONY: code_check code_clean code_format code_lint data_sync_from_s3 data_sync_to_s3 env_activate env_create env_deactivate env_remove env_update run_make_tile_index
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -23,37 +23,32 @@ HAS_MAMBA=True
 endif
 
 #################################################################################
-# COMMANDS                                                                      #
+# CODE MANAGEMENT                                                               #
 #################################################################################
 
-## Install Python Dependencies
-requirements: test_environment
-	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
-	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
-
-## Make Dataset
-data: requirements
-	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed
-
 ## Delete all compiled Python files
-clean:
+code_clean:
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
 
 ## Lint src code and notebooks with flake8
-lint:
+code_lint:
 	flake8 --config .flake8 src notebooks
 
 ## Format src code and notebooks with isort & black
-format:
+code_format:
 	isort src notebooks
 	black src notebooks
 
 ## Format and lint src code and notebooks
-check: format lint
+code_check: format lint
+
+#################################################################################
+# DATA MANAGEMENT                                                               #
+#################################################################################
 
 ## Upload data to S3. Pass dry-run=False to preform permanent sync to remote.
-sync_data_to_s3:
+data_sync_to_s3:
 ifeq (False,$(dry-run))
 	rclone sync ./data $(RCLONE_REMOTE_CONFIG_NAME):/$(BUCKET)
 else
@@ -61,51 +56,69 @@ else
 endif
 
 ## Download data from S3. Pass dry-run=False to preform permanent sync from remote.
-sync_data_from_s3:
+data_sync_from_s3:
 ifeq (False,$(dry-run))
 	rclone sync $(RCLONE_REMOTE_CONFIG_NAME):/$(BUCKET) ./data
 else
 	rclone sync --dry-run $(RCLONE_REMOTE_CONFIG_NAME):/$(BUCKET) ./data 
 endif
 
-## Set up mamba environment
-create_environment:
+#################################################################################
+# ENVIRONMENT MANAGEMENT                                                        #
+#################################################################################
+
+## Set up the conda environment
+env_create:
 ifeq (True,$(HAS_MAMBA))
 	@echo "Detected mamba, creating mamba environment."
-	mamba env create -f environment.yml
+	mamba env create --name $(PROJECT_NAME) --file environment.yml
 else
 ifeq (True,$(HAS_CONDA))
 	@echo "mamba not found, falling back to conda."
-	conda env create -f environment.yml
+	conda env create --name $(PROJECT_NAME) --file environment.yml
 else
 	$(error Neither mamba or conda was found. Install mamba or conda before continuing.)
 endif
 endif
 
-## Update mamba environment
-update_environment:
+## Update the conda environment to reflect changes to environment.yml
+env_update:
 ifeq (True,$(HAS_MAMBA))
 	@echo "Detected mamba, updating mamba environment."
-	mamba env update -n $(PROJECT_NAME) -f environment.yml --prune
+	mamba env update --name $(PROJECT_NAME) --file environment.yml --prune
 else
 ifeq (True,$(HAS_CONDA))
 	@echo "mamba not found, falling back to conda."
-	conda env update -n $(PROJECT_NAME) -f environment.yml --prune
+	conda env update --name $(PROJECT_NAME) --file environment.yml --prune
 else
 	$(error Neither mamba or conda was found. Install mamba or conda before continuing.)
 endif
 endif
 
+## Remove the conda environment
+env_remove:
+	conda env remove --name $(PROJECT_NAME)
+
+## Displays the command to activate the conda environment
+env_activate:
+	@echo "To activate this environment, use\n"
+	@echo "\t$$ conda activate $(PROJECT_NAME)\n"
+
+## Displays the command to deactivate an active environment
+env_deactivate:
+	@echo "To deactivate an activate environment, use\n"
+	@echo "\t$$ conda deactivate\n"
+
+#################################################################################
+# PROCESSING MANAGEMENT                                                         #
+#################################################################################
+
 ## Make tile index geoparquet from zipped shapefiles
-tile_index:
+run_make_tile_index:
 	$(PYTHON_INTERPRETER) src/data/make_tile_index.py \
 		--config-file config/tile_index_pipeline.toml \
 		--input-dir data/external/usgs/tile_index \
 		--output-file data/interim/tile_index.parquet
-
-## Test python environment is setup correctly
-test_environment:
-	$(PYTHON_INTERPRETER) test_environment.py
 
 #################################################################################
 # PROJECT RULES                                                                 #
