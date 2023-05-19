@@ -12,6 +12,8 @@ dependencies:
   - python-dotenv>=0.5.1
   # Additional packages
   - isort
+  - black
+  - black-jupyter
   - rclone
   - geopandas
   - pyarrow
@@ -19,5 +21,4 @@ dependencies:
   - python-pdal
   - pip
   - pip:
-      - black[jupyter]
       - -e .
