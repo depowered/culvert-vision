@@ -15,11 +15,24 @@ def _extract_tile_index(zipped_shapefile: Path, tile_name_field: str) -> GeoData
 
 
 def _transform_tile_index(
-    gdf: GeoDataFrame, tile_name_field: str, workunit: str, ept_json_url: Optional[str]
+    gdf: GeoDataFrame,
+    tile_name_field: str,
+    workunit: str,
+    ept_json_url: Optional[str],
+    ept_epsg_code: Optional[str],
 ) -> GeoDataFrame:
     rename = {tile_name_field: "name"}
-    assign = {"workunit": workunit, "ept_json_url": ept_json_url}
-    astype = {"name": "string", "workunit": "string", "ept_json_url": "string"}
+    assign = {
+        "workunit": workunit,
+        "ept_json_url": ept_json_url,
+        "ept_epsg_code": ept_epsg_code,
+    }
+    astype = {
+        "name": "string",
+        "workunit": "string",
+        "ept_json_url": "string",
+        "ept_epsg_code": "string",
+    }
     return gdf.rename(columns=rename).assign(**assign).astype(astype)
 
 
@@ -29,7 +42,11 @@ def _extract_transform_tile_index(
     zipped_shapefile = input_dir / source.zipped_shapefile
     extracted = _extract_tile_index(zipped_shapefile, source.tile_name_field)
     return _transform_tile_index(
-        extracted, source.tile_name_field, source.workunit, source.ept_json_url
+        extracted,
+        source.tile_name_field,
+        source.workunit,
+        source.ept_json_url,
+        source.ept_epsg_code,
     )
 
 
