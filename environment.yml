@@ -19,6 +19,7 @@ dependencies:
   - pyarrow
   - notebook
   - python-pdal
+  - pystac-client
   - pip
   - pip:
       - -e .
