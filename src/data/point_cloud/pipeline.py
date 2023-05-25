@@ -9,11 +9,8 @@ from geopandas import GeoDataFrame, GeoSeries
 from pandas import Float32Dtype, Int64Dtype, Series
 from pyproj import CRS
 
-from src.data.point_cloud.point_source import (
-    EPTData,
-    fetch_ept_data,
-    get_vendor_classified_ground_point_stages,
-)
+from src.data.point_cloud.ept import EPTData, fetch_ept_data
+from src.data.point_cloud.point_source import get_vendor_classified_ground_point_stages
 from src.data.point_cloud.product import get_delauney_mesh_dem_stages
 
 
