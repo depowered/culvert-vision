@@ -1,25 +1,40 @@
-from dataclasses import dataclass
+import logging
+from pathlib import Path
 
-from .point_cloud.interface import PipelineFactory, PointSource, Product, RasterBoundary
+import click
 
-
-@dataclass
-class PointCloudPipelineConfig:
-    ...
+from src.data.point_cloud.pipeline import rasters_from_points_pipeline
 
 
-def main(cfg: PointCloudPipelineConfig) -> None:
+@click.command()
+@click.option(
+    "--aoi-file",
+    required=True,
+    type=click.Path(resolve_path=True, dir_okay=False, file_okay=True, path_type=Path),
+    help="Area of Interest (aoi) geometry used to select tiles",
+)
+@click.option(
+    "--tile-index-file",
+    required=True,
+    type=click.Path(resolve_path=True, dir_okay=False, file_okay=True, path_type=Path),
+    help="Tile index geopackage",
+)
+@click.option(
+    "-o",
+    "--output-dir",
+    required=True,
+    type=click.Path(resolve_path=True, dir_okay=True, file_okay=False, path_type=Path),
+    help="Output directory to write products",
+)
+def main(aoi_file: Path, tile_index_file: Path, output_dir: Path) -> None:
     """Runs a point cloud processing pipeline that produces raster products from
     hosted Entwire Point Tiles (ept).
     """
-    # Read Area of Interest (AOI) geometry into a GeoDataFrame
-    # Select tiles by intersecting the AOI with the Tile Index
-    # Extract selected tiles into Tile objects for processing
-    # Initialize the Point Source object
-    # Initialize the Product object(s)
-    # Create a PDAL Pipeline Factory object
-    # Iterate over the Tiles, executing a PDAL pipeline for each
+    rasters_from_points_pipeline(aoi_file, tile_index_file, output_dir)
 
 
 if __name__ == "__main__":
+    log_fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    logging.basicConfig(level=logging.INFO, format=log_fmt)
+
     main()

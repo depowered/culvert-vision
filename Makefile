@@ -1,4 +1,4 @@
-.PHONY: code_check code_clean code_format code_lint data_sync_from_s3 data_sync_to_s3 env_activate env_create env_deactivate env_remove env_update run_make_tile_index
+.PHONY: clean_cache lint format check test sync_data_to_s3 sync_data_from_s3 create_env update_env remove_env activate_env deactivate_env create_tile_index_parquet create_tile_index_gpkg
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -27,28 +27,32 @@ endif
 #################################################################################
 
 ## Delete all compiled Python files
-code_clean:
+clean_cache:
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
 
 ## Lint src code and notebooks with flake8
-code_lint:
-	flake8 --config .flake8 src notebooks
+lint:
+	flake8 --config .flake8 src notebooks tests
 
 ## Format src code and notebooks with isort & black
-code_format:
-	isort src notebooks
-	black src notebooks
+format:
+	isort src notebooks tests
+	black src notebooks tests
 
 ## Format and lint src code and notebooks
-code_check: format lint
+check: format lint
+
+## Run unit tests with pytest
+test: check
+	pytest tests
 
 #################################################################################
 # DATA MANAGEMENT                                                               #
 #################################################################################
 
 ## Upload data to S3. Pass dry-run=False to preform permanent sync to remote.
-data_sync_to_s3:
+sync_data_to_s3:
 ifeq (False,$(dry-run))
 	rclone sync ./data $(RCLONE_REMOTE_CONFIG_NAME):/$(BUCKET)
 else
@@ -56,7 +60,7 @@ else
 endif
 
 ## Download data from S3. Pass dry-run=False to preform permanent sync from remote.
-data_sync_from_s3:
+sync_data_from_s3:
 ifeq (False,$(dry-run))
 	rclone sync $(RCLONE_REMOTE_CONFIG_NAME):/$(BUCKET) ./data
 else
@@ -68,7 +72,7 @@ endif
 #################################################################################
 
 ## Set up the conda environment
-env_create:
+create_env:
 ifeq (True,$(HAS_MAMBA))
 	@echo "Detected mamba, creating mamba environment."
 	mamba env create --name $(PROJECT_NAME) --file environment.yml
@@ -82,7 +86,7 @@ endif
 endif
 
 ## Update the conda environment to reflect changes to environment.yml
-env_update:
+update_env:
 ifeq (True,$(HAS_MAMBA))
 	@echo "Detected mamba, updating mamba environment."
 	mamba env update --name $(PROJECT_NAME) --file environment.yml --prune
@@ -96,16 +100,16 @@ endif
 endif
 
 ## Remove the conda environment
-env_remove:
+remove_env:
 	conda env remove --name $(PROJECT_NAME)
 
 ## Displays the command to activate the conda environment
-env_activate:
+activate_env:
 	@echo "To activate this environment, use\n"
 	@echo "\t$$ conda activate $(PROJECT_NAME)\n"
 
 ## Displays the command to deactivate an active environment
-env_deactivate:
+deactivate_env:
 	@echo "To deactivate an activate environment, use\n"
 	@echo "\t$$ conda deactivate\n"
 
@@ -114,11 +118,25 @@ env_deactivate:
 #################################################################################
 
 ## Make tile index geoparquet from zipped shapefiles
-run_make_tile_index:
+create_tile_index_parquet:
 	$(PYTHON_INTERPRETER) src/data/make_tile_index.py \
 		--config-file config/tile_index_pipeline.toml \
 		--input-dir data/external/usgs/tile_index \
 		--output-file data/interim/tile_index.parquet
+
+## Make tile index geopackage from zipped shapefiles
+create_tile_index_gpkg:
+	$(PYTHON_INTERPRETER) src/data/make_tile_index.py \
+		--config-file config/tile_index_pipeline.toml \
+		--input-dir data/external/usgs/tile_index \
+		--output-file data/interim/tile_index.gpkg
+
+## Create rasters from point clouds
+create_rasters_from_points:
+	$(PYTHON_INTERPRETER) src/data/make_rasters_from_points.py \
+		--aoi-file data/raw/test_point.geojson \
+		--tile-index-file data/interim/tile_index.gpkg \
+		--output-dir data/processed
 
 #################################################################################
 # PROJECT RULES                                                                 #

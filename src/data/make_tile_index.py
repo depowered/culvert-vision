@@ -2,8 +2,9 @@ import logging
 from pathlib import Path
 
 import click
-from tile_index.config import TileIndexPipelineConfig
-from tile_index.pipeline import tile_index_pipeline
+
+from src.data.tile_index.config import TileIndexPipelineConfig
+from src.data.tile_index.pipeline import tile_index_pipeline
 
 
 @click.command()

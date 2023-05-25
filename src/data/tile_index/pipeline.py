@@ -5,7 +5,7 @@ import geopandas
 import pandas as pd
 from geopandas import GeoDataFrame
 
-from .config import TileIndexPipelineConfig, TileIndexSource
+from src.data.tile_index.config import TileIndexPipelineConfig, TileIndexSource
 
 
 def _extract_tile_index(zipped_shapefile: Path, tile_name_field: str) -> GeoDataFrame:
@@ -58,4 +58,7 @@ def tile_index_pipeline(
         for source in config.tile_index_sources
     )
     contatinated: GeoDataFrame = pd.concat(gdfs)
-    contatinated.to_parquet(output_file)
+    if output_file.suffix == ".parquet":
+        contatinated.to_parquet(output_file)
+    else:
+        contatinated.to_file(output_file)

@@ -14,12 +14,14 @@ dependencies:
   - isort
   - black
   - black-jupyter
+  - pytest
   - rclone
   - geopandas
   - pyarrow
   - notebook
   - python-pdal
   - pystac-client
+  - rasterio
   - pip
   - pip:
       - -e .
