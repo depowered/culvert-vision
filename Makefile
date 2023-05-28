@@ -54,7 +54,7 @@ test: check
 ## Upload data to S3. Pass dry-run=False to preform permanent sync to remote.
 sync_data_to_s3:
 ifeq (False,$(dry-run))
-	rclone sync ./data $(RCLONE_REMOTE_CONFIG_NAME):/$(BUCKET)
+	rclone sync --progress ./data $(RCLONE_REMOTE_CONFIG_NAME):/$(BUCKET)
 else
 	rclone sync --dry-run ./data $(RCLONE_REMOTE_CONFIG_NAME):/$(BUCKET)
 endif
@@ -62,7 +62,7 @@ endif
 ## Download data from S3. Pass dry-run=False to preform permanent sync from remote.
 sync_data_from_s3:
 ifeq (False,$(dry-run))
-	rclone sync $(RCLONE_REMOTE_CONFIG_NAME):/$(BUCKET) ./data
+	rclone sync --progress $(RCLONE_REMOTE_CONFIG_NAME):/$(BUCKET) ./data
 else
 	rclone sync --dry-run $(RCLONE_REMOTE_CONFIG_NAME):/$(BUCKET) ./data 
 endif

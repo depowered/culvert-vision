@@ -21,14 +21,14 @@ def _transform_tile_index(
     ept_json_url: Optional[str],
     ept_epsg_code: Optional[str],
 ) -> GeoDataFrame:
-    rename = {tile_name_field: "name"}
+    rename = {tile_name_field: "tile_name"}
     assign = {
         "workunit": workunit,
         "ept_json_url": ept_json_url,
         "ept_epsg_code": ept_epsg_code,
     }
     astype = {
-        "name": "string",
+        "tile_name": "string",
         "workunit": "string",
         "ept_json_url": "string",
         "ept_epsg_code": "string",

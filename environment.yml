@@ -17,6 +17,7 @@ dependencies:
   - pytest
   - rclone
   - geopandas
+  - pandera
   - pyarrow
   - notebook
   - python-pdal
