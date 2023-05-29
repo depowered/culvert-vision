@@ -3,7 +3,7 @@ from pathlib import Path
 
 import click
 
-from src.data.point_cloud.pipeline import rasters_from_points_pipeline
+from src.data.point_cloud.pipeline import _cli_create_point_cloud_products
 
 
 @click.command()
@@ -20,7 +20,6 @@ from src.data.point_cloud.pipeline import rasters_from_points_pipeline
     help="Tile index geopackage",
 )
 @click.option(
-    "-o",
     "--output-dir",
     required=True,
     type=click.Path(resolve_path=True, dir_okay=True, file_okay=False, path_type=Path),
@@ -30,7 +29,7 @@ def main(aoi_file: Path, tile_index_file: Path, output_dir: Path) -> None:
     """Runs a point cloud processing pipeline that produces raster products from
     hosted Entwire Point Tiles (ept).
     """
-    rasters_from_points_pipeline(aoi_file, tile_index_file, output_dir)
+    _cli_create_point_cloud_products(aoi_file, tile_index_file, output_dir)
 
 
 if __name__ == "__main__":

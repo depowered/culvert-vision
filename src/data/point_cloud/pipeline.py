@@ -22,6 +22,18 @@ def select_tiles(aoi_file: Path, tile_index_gpkg: Path) -> GeoDataFrame:
     return validated
 
 
+def select_tiles_by_location(
+    aoi: GeoDataFrame, tile_index: GeoDataFrame
+) -> GeoDataFrame:
+    proj_aoi = aoi.to_crs(tile_index.crs)
+    selected_tiles = geopandas.sjoin(
+        left_df=tile_index, right_df=proj_aoi, how="inner", predicate="intersects"
+    )
+    validated: GeoDataFrame = SelectedTilesSchema.validate(selected_tiles)
+    return validated
+
+
+# TODO: Test
 def _calc_ept_filter_as_wkt(geometry: GeoSeries, ept_crs: CRS) -> Series:
     return (
         geometry.buffer(10, join_style="mitre")
@@ -52,32 +64,33 @@ def generate_tile_data(
     return tile_data
 
 
+# TODO: Test
 def generate_pipelines(
     tile_data: list[TileData], ept_data: EPTData, resolution: float, output_dir: Path
 ) -> list[pdal.Pipeline]:
     pipelines = []
     for tile in tile_data:
         source_stages = vendor_classified_ground_points(ept_data, tile)
-        product_stages = delauney_mesh_dem(resolution, tile, output_dir)
+        product_stages = delauney_mesh_dem(tile, resolution, output_dir)
         pipeline_json = json.dumps(source_stages + product_stages)
         pipelines.append(pdal.Pipeline(pipeline_json))
     return pipelines
 
 
 def rasters_from_points_pipeline(
-    aoi_file: Path, tile_index_file: Path, output_dir: Path
+    aoi: GeoDataFrame, tile_index: GeoDataFrame, output_dir: Path
 ) -> None:
     """Runs a point cloud processing pipeline that produces raster products from
     hosted Entwire Point Tiles (ept).
     """
     logger = logging.getLogger(__name__)
-    selected_tiles = select_tiles(aoi_file, tile_index_file)
+    selected_tiles = select_tiles_by_location(aoi, tile_index)
     logger.info(
         "Intersection of AOI & tile index yielded %s tile(s)", selected_tiles.shape[0]
     )
 
     logger.info("Fetching Entwine Point Tile (EPT) data from AWS STAC Catalog")
-    ept_data = fetch_ept_data(selected_tiles.at[0, "workunit"])
+    ept_data = fetch_ept_data(selected_tiles["workunit"].iloc[0])
 
     tile_data = generate_tile_data(selected_tiles, ept_data)
 
@@ -90,3 +103,19 @@ def rasters_from_points_pipeline(
         pipeline.execute()
 
     logger.info("Complete")
+
+
+def _cli_create_point_cloud_products(
+    aoi_file: Path, tile_index_file: Path, output_dir: Path
+) -> None:
+    def read_geo_file(f: Path) -> GeoDataFrame:
+        return (
+            geopandas.read_parquet(f)
+            if f.suffix == ".parquet"
+            else geopandas.read_file(f)
+        )
+
+    aoi = read_geo_file(aoi_file)
+    tile_index = read_geo_file(tile_index_file)
+
+    rasters_from_points_pipeline(aoi, tile_index, output_dir)
