@@ -1,4 +1,4 @@
-.PHONY: clean_cache lint format check test sync_data_to_s3 sync_data_from_s3 create_env update_env remove_env activate_env deactivate_env create_tile_index_parquet create_tile_index_gpkg
+.PHONY: clean_cache lint format check test start_postgis stop_postgis sync_data_to_s3 sync_data_from_s3 create_env update_env remove_env activate_env deactivate_env create_tile_index_parquet create_tile_index_gpkg
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -31,25 +31,30 @@ clean_cache:
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
 
-## Lint src code and notebooks with flake8
-lint:
-	flake8 --config .flake8 src notebooks tests
-
 ## Format src code and notebooks with isort & black
 format:
-	isort src notebooks tests
-	black src notebooks tests
+	isort -q src notebooks tests
+	black -q src notebooks tests
 
-## Format and lint src code and notebooks
-check: format lint
+## Lint src code and notebooks with flake8
+lint: format
+	flake8 --config .flake8 src notebooks tests
 
 ## Run unit tests with pytest
-test: check
+test: lint
 	pytest tests
 
 #################################################################################
 # DATA MANAGEMENT                                                               #
 #################################################################################
+
+## Launch PostGIS docker container
+start_postgis:
+	docker compose up -d
+
+## Shutdown PostGIS docker container
+stop_postgis:
+	docker compose down
 
 ## Upload data to S3. Pass dry-run=False to preform permanent sync to remote.
 sync_data_to_s3:
@@ -75,11 +80,11 @@ endif
 create_env:
 ifeq (True,$(HAS_MAMBA))
 	@echo "Detected mamba, creating mamba environment."
-	mamba env create --name $(PROJECT_NAME) --file environment.yml
+	mamba env create --name $(PROJECT_NAME) --file environment.yml --quiet
 else
 ifeq (True,$(HAS_CONDA))
 	@echo "mamba not found, falling back to conda."
-	conda env create --name $(PROJECT_NAME) --file environment.yml
+	conda env create --name $(PROJECT_NAME) --file environment.yml --quiet
 else
 	$(error Neither mamba or conda was found. Install mamba or conda before continuing.)
 endif
@@ -89,11 +94,11 @@ endif
 update_env:
 ifeq (True,$(HAS_MAMBA))
 	@echo "Detected mamba, updating mamba environment."
-	mamba env update --name $(PROJECT_NAME) --file environment.yml --prune
+	mamba env update --name $(PROJECT_NAME) --file environment.yml --prune --quiet
 else
 ifeq (True,$(HAS_CONDA))
 	@echo "mamba not found, falling back to conda."
-	conda env update --name $(PROJECT_NAME) --file environment.yml --prune
+	conda env update --name $(PROJECT_NAME) --file environment.yml --prune --quiet
 else
 	$(error Neither mamba or conda was found. Install mamba or conda before continuing.)
 endif

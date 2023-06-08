@@ -1,0 +1,27 @@
+# FROM https://github.com/kartoza/docker-postgis/blob/develop/docker-compose.yml
+
+# docker-compose build
+version: '3.9'
+
+volumes:
+  postgis-data:
+
+
+services:
+  postgis:
+    image: kartoza/postgis:15-3.3
+    volumes:
+      - postgis-data:/var/lib/postgresql
+    environment:
+      - POSTGRES_DB # defined in .env
+      - POSTGRES_USER # defined in .env
+      - POSTGRES_PASS # defined in .env
+      - ALLOW_IP_RANGE=0.0.0.0/0
+      # Add extensions you need to be enabled by default in the DB. Default are the five specified below
+      - POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology,postgis_raster,pgrouting
+      - RUN_AS_ROOT=true
+    ports:
+      - "54320:5432"
+    restart: on-failure
+    healthcheck:
+      test: "PGPASSWORD=$POSTGRES_PASS pg_isready -h 127.0.0.1 -U $POSTGRES_USER -d $POSTGRES_DB"
