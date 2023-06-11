@@ -1,6 +1,8 @@
+import subprocess
 from datetime import datetime
 from email.utils import parsedate_to_datetime
 from pathlib import Path
+from typing import Protocol
 from zipfile import ZIP_DEFLATED, ZipFile
 
 import psycopg
@@ -51,6 +53,15 @@ def pg_schema_exists(pg_dsn: str, schemaname: str) -> bool:
         return record.exists
 
 
+def pg_create_schema_if_not_exists(pg_dsn: str, schemaname) -> None:
+    with psycopg.connect(pg_dsn) as conn:
+        query = sql.SQL("CREATE SCHEMA IF NOT EXISTS {schemaname}").format(
+            schemaname=sql.Identifier(schemaname)
+        )
+        conn.execute(query)
+        conn.commit()
+
+
 def pg_table_exists(pg_dsn: str, schemaname: str, tablename: str) -> bool:
     """Returns a bool indiciating if the table exists in the database."""
     with psycopg.connect(pg_dsn, row_factory=namedtuple_row) as conn:
@@ -68,3 +79,30 @@ def pg_table_exists(pg_dsn: str, schemaname: str, tablename: str) -> bool:
         )
         record = conn.execute(query=query).fetchone()
         return record.exists
+
+
+def pg_drop_table_if_exists(pg_dsn: str, schemaname: str, tablename: str) -> None:
+    if not pg_schema_exists(pg_dsn=pg_dsn, schemaname=schemaname):
+        # table can't exists if parent schema does not
+        # The following query will raise an error if the schema doesn't exist
+        return
+    with psycopg.connect(pg_dsn) as conn:
+        query = sql.SQL("DROP TABLE IF EXISTS {schemaname}.{tablename};").format(
+            schemaname=sql.Identifier(schemaname),
+            tablename=sql.Identifier(tablename),
+        )
+        conn.execute(query)
+        conn.commit()
+
+
+class VectorSource(Protocol):
+    filepath: Path
+    schemaname: str
+    tablename: str
+
+
+def pg_load_vector_source(pg_dsn: str, vector_src: VectorSource) -> None:
+    nln = f"{vector_src.schemaname}.{vector_src.tablename}"
+    input_file = f"{vector_src.filepath}"
+    cmd = ["ogr2ogr", "-f", "PostgreSQL", "-progress", "-nln", nln, pg_dsn, input_file]
+    subprocess.run(cmd)

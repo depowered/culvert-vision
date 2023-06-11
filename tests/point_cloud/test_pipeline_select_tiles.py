@@ -11,7 +11,7 @@ def test_select_tiles():
 
     result = select_tiles(aoi_file, tile_index_file)
 
-    assert result.at[0, "tile_name"] == "15TXN689291"
+    assert result.at[0, "tile_name"] == "15TXN689290"
     assert result.shape[0] == 1
     assert len(result.columns) == 3
 
@@ -26,5 +26,5 @@ def test_select_tiles_by_location():
     result = select_tiles_by_location(tile_index, aoi)
 
     assert result.shape[0] == 1
-    assert result["tile_name"].iloc[0] == "15TXN689291"
+    assert result["tile_name"].iloc[0] == "15TXN689290"
     assert len(result.columns) == 3

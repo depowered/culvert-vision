@@ -1,28 +1,34 @@
 from datetime import date
 from pathlib import Path
+from typing import Optional
 
-from pydantic import BaseModel, BaseSettings
+from pydantic import BaseModel, BaseSettings, HttpUrl, PostgresDsn
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 DATA_DIR = PROJECT_DIR / "data/"
 LOG_DIR = PROJECT_DIR / "logs/"
 
 
-class WesmCsv(BaseModel):
-    download_url = (
-        "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/metadata/WESM.csv"
-    )
-    raw: Path = DATA_DIR / "external/usgs/WESM.csv"
+class VectorSource(BaseModel):
+    download_url: Optional[HttpUrl]
+    filepath: Path
+    schemaname: str
+    tablename: str
 
 
-class USGSWesm(BaseModel):
-    download_url = (
-        "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/metadata/WESM.gpkg"
+class VectorSources(BaseModel):
+    usgs_wesm: VectorSource = VectorSource(
+        download_url="https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/metadata/WESM.gpkg",
+        filepath=DATA_DIR / "external/usgs/WESM.gpkg",
+        schemaname="raw",
+        tablename="usgs_wesm",
     )
-    sourcefile: Path = DATA_DIR / "external/usgs/WESM.gpkg"
-    ogr2ogr_where: str = "workunit LIKE 'MN%' AND (ql = 'QL 0' OR ql = 'QL 1')"
-    schemaname: str = "usgs"
-    tablename: str = "wesm"
+    usgs_opr_tesm: VectorSource = VectorSource(
+        download_url="https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/OPR/FullExtentSpatialMetadata/OPR_TESM.gpkg",
+        filepath=DATA_DIR / "external/usgs/OPR_TESM.gpkg",
+        schemaname="raw",
+        tablename="usgs_opr_tesm",
+    )
 
 
 class Settings(BaseSettings):
@@ -33,10 +39,10 @@ class Settings(BaseSettings):
     postgres_db: str
     postgres_user: str
     postgres_pass: str
-    postgres_published_port: int = 54320
+    postgres_published_port: int
 
     @property
-    def pg_dsn(self) -> str:
+    def pg_dsn(self) -> PostgresDsn:
         return "postgresql://{user}:{password}@localhost:{port}/{db_name}".format(
             user=self.postgres_user,
             password=self.postgres_pass,
@@ -44,8 +50,7 @@ class Settings(BaseSettings):
             db_name=self.postgres_db,
         )
 
-    wesm_csv: WesmCsv = WesmCsv()
-    usgs_wesm: USGSWesm = USGSWesm()
+    vector_sources: VectorSources = VectorSources()
 
     class Config:
         env_file = ".env"
