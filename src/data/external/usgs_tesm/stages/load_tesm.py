@@ -14,7 +14,7 @@ _stage_name = "LOAD"
 def run(settings: Settings):
     """Loads raw OPR TESM data into PostGIS"""
     pg_dsn = settings.pg_dsn
-    vector_src = settings.vector_sources.usgs_opr_tesm
+    vector_src = settings.vector_sources["usgs_opr_tesm"]
     logger.info(
         f"{_stage_name}: Loading table {vector_src.schemaname}.{vector_src.tablename}"
     )
@@ -36,7 +36,7 @@ def done(settings: Settings) -> bool:
     """Returns a bool indicating if the stage has been run."""
     # Check if the destination table exists
     pg_dsn = settings.pg_dsn
-    vector_src = settings.vector_sources.usgs_opr_tesm
+    vector_src = settings.vector_sources["usgs_opr_tesm"]
     exists = pg_table_exists(
         pg_dsn=pg_dsn,
         schemaname=vector_src.schemaname,

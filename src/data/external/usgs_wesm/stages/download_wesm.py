@@ -8,7 +8,7 @@ _stage_name = "DOWNLOAD"
 
 def run(settings: Settings) -> None:
     """Downloads the Workunit Extent Spatial Metadata (WESM) asset from the USGS."""
-    vector_src = settings.vector_sources.usgs_wesm
+    vector_src = settings.vector_sources["usgs_wesm"]
     logger.info(
         f"{_stage_name}: Downloading {vector_src.filepath.name} from {vector_src.download_url}"
     )
@@ -18,7 +18,7 @@ def run(settings: Settings) -> None:
 
 def done(settings: Settings) -> bool:
     """Returns a bool indicating if the stage has been run."""
-    vector_src = settings.vector_sources.usgs_wesm
+    vector_src = settings.vector_sources["usgs_wesm"]
     exists = vector_src.filepath.exists()
     if exists:
         logger.info(f"{_stage_name}: Previous run satisfies stage")

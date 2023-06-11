@@ -16,21 +16,6 @@ class VectorSource(BaseModel):
     tablename: str
 
 
-class VectorSources(BaseModel):
-    usgs_wesm: VectorSource = VectorSource(
-        download_url="https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/metadata/WESM.gpkg",
-        filepath=DATA_DIR / "external/usgs/WESM.gpkg",
-        schemaname="raw",
-        tablename="usgs_wesm",
-    )
-    usgs_opr_tesm: VectorSource = VectorSource(
-        download_url="https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/OPR/FullExtentSpatialMetadata/OPR_TESM.gpkg",
-        filepath=DATA_DIR / "external/usgs/OPR_TESM.gpkg",
-        schemaname="raw",
-        tablename="usgs_opr_tesm",
-    )
-
-
 class Settings(BaseSettings):
     data_dir: Path = DATA_DIR
     log_file: Path = LOG_DIR / f"{date.today()}.log"
@@ -50,7 +35,20 @@ class Settings(BaseSettings):
             db_name=self.postgres_db,
         )
 
-    vector_sources: VectorSources = VectorSources()
+    vector_sources: dict[str, VectorSource] = {
+        "usgs_wesm": VectorSource(
+            download_url="https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/metadata/WESM.gpkg",
+            filepath=DATA_DIR / "external/usgs/WESM.gpkg",
+            schemaname="raw",
+            tablename="usgs_wesm",
+        ),
+        "usgs_opr_tesm": VectorSource(
+            download_url="https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/OPR/FullExtentSpatialMetadata/OPR_TESM.gpkg",
+            filepath=DATA_DIR / "external/usgs/OPR_TESM.gpkg",
+            schemaname="raw",
+            tablename="usgs_opr_tesm",
+        ),
+    }
 
     class Config:
         env_file = ".env"
