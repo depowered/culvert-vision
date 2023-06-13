@@ -26,11 +26,14 @@ class Settings(BaseSettings):
     data_dir: Path = DATA_DIR
     log_file: Path = LOG_DIR / f"{date.today()}.log"
 
-    # Database parameters
+    # Postgres parameters
     postgres_db: str
     postgres_user: str
     postgres_pass: str
     postgres_published_port: int
+
+    # Duckdb parameters
+    raw_data_pond: Path = DATA_DIR / "interim/vector/raw_data_pond.duckdb"
 
     @property
     def pg_dsn(self) -> PostgresDsn:

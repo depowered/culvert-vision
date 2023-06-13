@@ -26,6 +26,7 @@ dependencies:
   - loguru
   - gdal
   - psycopg
+  - python-duckdb
   - pip
   - pip:
       - -e .
