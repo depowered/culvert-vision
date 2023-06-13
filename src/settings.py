@@ -58,7 +58,7 @@ class Settings(BaseSettings):
         ),
         "mndnr_culvert_inventory": VectorSource(
             download_url="https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_dnr/struc_culvert_inventory_pub/gpkg_struc_culvert_inventory_pub.zip",
-            filepath=DATA_DIR / "external/mndnr/gpkg_struc_culvert_inventory_pub.zip",
+            filepath=DATA_DIR / "external/mndnr/struc_culvert_inventory_pub.gpkg",
             load_layers=[
                 LoadLayer(layer="Bridge_Assessments", to_table="raw_mndnr_bridges"),
                 LoadLayer(
@@ -72,7 +72,7 @@ class Settings(BaseSettings):
         ),
         "mndnr_hydrography": VectorSource(
             download_url="https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_dnr/water_dnr_hydrography/gpkg_water_dnr_hydrography.zip",
-            filepath=DATA_DIR / "external/mndnr/gpkg_water_dnr_hydrography.zip",
+            filepath=DATA_DIR / "external/mndnr/water_dnr_hydrography.gpkg",
             load_layers=[
                 LoadLayer(layer="dnr_hydro_features_all", to_table="raw_mndnr_lakes"),
                 LoadLayer(
@@ -82,7 +82,7 @@ class Settings(BaseSettings):
         ),
         "mndnr_watershed_suite": VectorSource(
             download_url="https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_dnr/geos_dnr_watersheds/gpkg_geos_dnr_watersheds.zip",
-            filepath=DATA_DIR / "external/mndnr/gpkg_geos_dnr_watersheds.zip",
+            filepath=DATA_DIR / "external/mndnr/geos_dnr_watersheds.gpkg",
             load_layers=[
                 LoadLayer(
                     layer="dnr_watersheds_dnr_level_08_all_catchments",
