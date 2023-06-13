@@ -30,17 +30,19 @@ class Settings(BaseSettings):
     postgres_db: str
     postgres_user: str
     postgres_pass: str
-    postgres_published_port: int
+    postgres_host: str
+    postgres_port: int
 
     # Duckdb parameters
     raw_data_pond: Path = DATA_DIR / "interim/vector/raw_data_pond.duckdb"
 
     @property
     def pg_dsn(self) -> PostgresDsn:
-        return "postgresql://{user}:{password}@localhost:{port}/{db_name}".format(
+        return "postgresql://{user}:{password}@{host}:{port}/{db_name}".format(
             user=self.postgres_user,
             password=self.postgres_pass,
-            port=self.postgres_published_port,
+            host=self.postgres_host,
+            port=self.postgres_port,
             db_name=self.postgres_db,
         )
 
