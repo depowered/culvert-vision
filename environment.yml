@@ -29,4 +29,6 @@ dependencies:
   - python-duckdb
   - pip
   - pip:
+      - dbt-duckdb
+      - dbt-postgres
       - -e .
